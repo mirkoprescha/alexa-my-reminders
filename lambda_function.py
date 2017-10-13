@@ -32,10 +32,10 @@ def session_ended_request_handler(request):
 def read_my_reminders_intent_handler(request):
     print "starting intent {} for user_id {} and session_id {}".format(request.intent_name(), request.user_id(), request.session_id())
     my_reminder_text = read_reminders.getTextFromS3(S3_BUCKET, S3_KEY)
-    reminder_list = read_reminders.splitTextIntoListOfSSML(my_reminder_text)
-
-    #return alexa.create_response("Hier sind deine Erinnerungen. {}".format(reminder_list), end_session=True, is_ssml=True)
-    return alexa.create_response(reminder_list, end_session=True, is_ssml=True)
+    cleaned_reminders = read_reminders.clean_text(my_reminder_text)
+    ssml = read_reminders.generate_ssml(cleaned_reminders)
+    #return alexa.create_response("Hier sind deine Erinnerungen. {}".format(cleaned_reminders), end_session=True, is_ssml=True)
+    return alexa.create_response(ssml, end_session=True, is_ssml=True)
 
 
 if __name__ == "__main__":    

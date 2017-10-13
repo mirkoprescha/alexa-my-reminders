@@ -24,16 +24,19 @@ def clean_text(reminder_text):
     return reminder_list_break
 
 def generate_ssml(reminder_text):
-
+    import random
     # add point and break to each reminder
     reminder_list_with_break = [x + '<break time="3s"/>' for x in reminder_text]
 
     #remove until 8000 chars
-    while sum(len(x) for x in reminder_list_with_break) > MAX_ALEXA_SPEACH_OUTPUT:
-        print "remove from one reminder from list, because speech out reached limit"
-        reminder_list_with_break.pop()
+    while sum(len(x) for x in reminder_list_with_break) > (MAX_ALEXA_SPEACH_OUTPUT - 1100):
+        index_to_remove = random.randint(0,len(reminder_list_with_break)-1)
+        print "remove element with index {} from reminder list, because speech out reached limit".format(index_to_remove)
+        reminder_list_with_break.pop(index_to_remove)
+
 
     ssml = "<speak>" + ''.join(reminder_list_with_break) + "</speak>"
+    print "length of ssml is " + str(len(ssml))
 
     return ssml
 
