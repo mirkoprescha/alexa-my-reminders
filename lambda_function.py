@@ -1,18 +1,12 @@
-"""
-In this file we specify default event handlers which are then populated into the handler map using metaprogramming
-Copyright Anjishnu Kumar 2015
-Happy Hacking!
-"""
-
 from ask import alexa
 
 def lambda_handler(request_obj, context=None):
-    '''
-    This is the main function to enter to enter into this code.
-    If you are hosting this code on AWS Lambda, this should be the entry point.
-    Otherwise your server can hit this code as long as you remember that the
-    input 'request_obj' is JSON request converted into a nested python object.
-    '''
+
+    from config import APPLICATION_ID
+    if request_obj['session']['application']['applicationId'] != APPLICATION_ID:
+        raise ValueError("Invalid Application ID")
+
+
 
     metadata = {'user_name' : 'SomeRandomDude'} # add your own metadata to the request using key value pairs
     
