@@ -34,7 +34,8 @@ def read_my_reminders_intent_handler(request):
     my_reminder_text = read_reminders.getTextFromS3(S3_BUCKET, S3_KEY)
     reminder_list = read_reminders.splitTextIntoListOfSSML(my_reminder_text)
 
-    return alexa.create_response("Hier sind deine Erinnerungen. {}".format(reminder_list), end_session=True, is_ssml=True)
+    #return alexa.create_response("Hier sind deine Erinnerungen. {}".format(reminder_list), end_session=True, is_ssml=True)
+    return alexa.create_response(reminder_list, end_session=True, is_ssml=True)
 
 
 if __name__ == "__main__":    
