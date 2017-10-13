@@ -1,77 +1,39 @@
 from ask import alexa
+import read_reminders
+
 
 def lambda_handler(request_obj, context=None):
+    from config import APPLICATION_ID, S3_BUCKET, S3_KEY
+    print "S3 Config is bucket {} with key {}".format(S3_BUCKET, S3_KEY)
 
-    from config import APPLICATION_ID
     if request_obj['session']['application']['applicationId'] != APPLICATION_ID:
         raise ValueError("Invalid Application ID")
 
-
-
-    metadata = {'user_name' : 'SomeRandomDude'} # add your own metadata to the request using key value pairs
-    
-    ''' inject user relevant metadata into the request if you want to, here.    
-    e.g. Something like : 
-    ... metadata = {'user_name' : some_database.query_user_name(request.get_user_id())}
-
-    Then in the handler function you can do something like -
-    ... return alexa.create_response('Hello there {}!'.format(request.metadata['user_name']))
-    '''
-    return alexa.route_request(request_obj, metadata)
+    return alexa.route_request(request_obj)
 
 
 @alexa.default
 def default_handler(request):
     """ The default handler gets invoked if no handler is set for a request type """
-    return alexa.respond('Just ask').with_card('Hello World')
+    return alexa.respond('Starte mit Spiele meine Erinnerungen ab.')
 
 
 @alexa.request("LaunchRequest")
 def launch_request_handler(request):
     ''' Handler for LaunchRequest '''
-    return alexa.create_response(message="Hello Welcome to My Recipes!")
+    return alexa.create_response(message="Hallo und willkommen zu meine Erinnerungen.")
 
 
 @alexa.request("SessionEndedRequest")
 def session_ended_request_handler(request):
-    return alexa.create_response(message="Goodbye!")
+    return alexa.create_response(message="Auf Wiedersehen!")
 
 
-@alexa.intent('GetRecipeIntent')
-def get_recipe_intent_handler(request):
-    """
-    You can insert arbitrary business logic code here    
-    """
-
-    # Get variables like userId, slots, intent name etc from the 'Request' object
-    ingredient = request.slots["Ingredient"]  # Gets an Ingredient Slot from the Request object.
-    
-    if ingredient == None:
-        return alexa.create_response("Could not find an ingredient!")
-
-    # All manipulations to the request's session object are automatically reflected in the request returned to Amazon.
-    # For e.g. This statement adds a new session attribute (automatically returned with the response) storing the
-    # Last seen ingredient value in the 'last_ingredient' key. 
-
-    request.session['last_ingredient'] = ingredient # Automatically returned as a sessionAttribute
-    
-    # Modifying state like this saves us from explicitly having to return Session objects after every response
-
-    # alexa can also build cards which can be sent as part of the response
-    card = alexa.create_card(title="GetRecipeIntent activated", subtitle=None,
-                             content="asked alexa to find a recipe using {}".format(ingredient))    
-
-    return alexa.create_response("Finding a recipe with the ingredient {}".format(ingredient),
-                                 end_session=False, card_obj=card)
-
-
-
-@alexa.intent('NextRecipeIntent')
-def next_recipe_intent_handler(request):
-    """
-    You can insert arbitrary business logic code here
-    """
-    return alexa.create_response(message="Getting Next Recipe ... 123")
+@alexa.intent('ReadMyRemindersIntent')
+def read_my_reminders_intent_handler(request):
+    print "starting intent {} for user_id {} and session_id {}".format(request.intent_name(), request.user_id(), request.session_id())
+    my_reminder_text = read_reminders.getTextFromS3()
+    return alexa.create_response("Hier sind deine Erinnerungen. {}".format(my_reminder_text), end_session=True)
 
 
 if __name__ == "__main__":    
@@ -93,4 +55,3 @@ if __name__ == "__main__":
             request_obj = flask.request.get_json()
             return lambda_handler(request_obj)
         server.run()
-    

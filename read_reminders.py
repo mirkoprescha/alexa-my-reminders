@@ -1,7 +1,6 @@
 import boto3
 from config import S3_BUCKET, S3_KEY
 
-print S3_KEY
 def getTextFromS3():
     s3 = boto3.resource('s3')
 
@@ -10,4 +9,3 @@ def getTextFromS3():
 
     return reminder_text
 
-print getTextFromS3()
