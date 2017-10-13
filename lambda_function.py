@@ -1,9 +1,8 @@
 from ask import alexa
 import read_reminders
-
+from config import APPLICATION_ID, S3_BUCKET, S3_KEY
 
 def lambda_handler(request_obj, context=None):
-    from config import APPLICATION_ID, S3_BUCKET, S3_KEY
     print "S3 Config is bucket {} with key {}".format(S3_BUCKET, S3_KEY)
 
     if request_obj['session']['application']['applicationId'] != APPLICATION_ID:
@@ -32,8 +31,10 @@ def session_ended_request_handler(request):
 @alexa.intent('ReadMyRemindersIntent')
 def read_my_reminders_intent_handler(request):
     print "starting intent {} for user_id {} and session_id {}".format(request.intent_name(), request.user_id(), request.session_id())
-    my_reminder_text = read_reminders.getTextFromS3()
-    return alexa.create_response("Hier sind deine Erinnerungen. {}".format(my_reminder_text), end_session=True)
+    my_reminder_text = read_reminders.getTextFromS3(S3_BUCKET, S3_KEY)
+    reminder_list = read_reminders.splitTextIntoListOfSSML(my_reminder_text)
+
+    return alexa.create_response("Hier sind deine Erinnerungen. {}".format(reminder_list), end_session=True, is_ssml=True)
 
 
 if __name__ == "__main__":    
